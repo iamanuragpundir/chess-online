@@ -1,8 +1,0 @@
-#board{
-    display: grid;
-    grid-template-columns: repeat(8, 65px);
-    grid-template-rows: repeat(8, 65px);
-    width: 520px;
-    height: 520px;
-    background-color: indianred;
-}
