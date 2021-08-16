@@ -1,0 +1,24 @@
+.tile{
+    position: relative;
+    height: 63px;
+    width: 63px;
+}
+
+.black-tile{
+    background-color: #769656;
+}
+.white-tile{
+    background-color: beige
+}
+.tileImg{
+    width: 63px;
+    height: 63px;
+}
+
+.highlight{
+    background-color: #bab74f;
+    border-top: 0.02px solid black;
+    border-bottom: 0.02px solid black;
+    border-left: 0.02px solid black;
+    border-right: 0.02px solid black;
+}

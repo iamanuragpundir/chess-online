@@ -1,0 +1,16 @@
+{
+  "name": "chess-backend",
+  "version": "1.0.0",
+  "description": "This is backend for chess that will expose API for the react app to update the board accordingly, using mongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon ./bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anurag Pundir",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.13.5"
+  }
+}
