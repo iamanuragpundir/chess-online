@@ -19,15 +19,15 @@
 
 const express = require('express')
 const mongoose = require('mongoose')
-const chessModel = require('./models/pieces_position')
+const game = require('./models/game')
+const board = require('./models/board')
 const path = require('path');
+const bodyParser = require('body-parser')
 const { resolve } = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000
-app.listen(port, () => {
-	console.log(`server is running on port: ${port}`)
-})
+var jsonParser = bodyParser.json()
 
 mongoose.connect('mongodb://localhost:27017/chess', {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -37,29 +37,6 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once("open", function() {
 	console.log("MongoDB database connection established successfully");
 });
-
-// function invertPieces(pieces){
-// 	return new Promise( (resolve, reject)=>{
-
-// 		const haxis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-// 		const vaxis = ['1', '2', '3', '4', '5', '6', '7', '8']
-
-// 		for (let i = 0; i < 4; i++) {
-// 			let invertedVIndex = (8 - parseInt(vaxis[i]) + 1).toString();
-// 			for (let j = 0; j < 8; j++) {
-// 			  // let invertedHIndex = String.fromCharCode(96 + 8  - (haxis[j].charCodeAt() - 96) + 1)
-// 			  let tempImgUrl = pieces[vaxis[i] + haxis[j]];
-// 			  pieces[vaxis[i] + haxis[j]] = pieces[invertedVIndex + haxis[j]];
-// 			  pieces[invertedVIndex + haxis[j]] = tempImgUrl;
-// 			}
-// 		  }
-		
-// 		if(pieces === undefined)
-// 			reject("not resolved")
-// 		else
-// 			resolve(pieces)
-// 	})
-// }
 
 function invertBoard(pieces, res, callback){
 	const haxis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -78,9 +55,7 @@ function invertBoard(pieces, res, callback){
 	//column-wise inversion
 	for (let i = 0; i < 8; i++) {
 		for (let j = 0; j < 4; j++) {
-		let invertedHIndex = String.fromCharCode(
-			96 + 8 - (haxis[j].charCodeAt() - 96) + 1
-		);
+		let invertedHIndex = String.fromCharCode(96 + 8 - (haxis[j].charCodeAt() - 96) + 1);
 		let tempImgUrl = pieces[vaxis[i] + invertedHIndex];
 		pieces[vaxis[i] + invertedHIndex] = pieces[vaxis[i] + haxis[j]];
 		pieces[vaxis[i] + haxis[j]] = tempImgUrl;
@@ -89,18 +64,60 @@ function invertBoard(pieces, res, callback){
 
 	callback(res, pieces)
 }
-// app.get('/', function (req, res) {
-//     res.sendFile("E:/Projects/chess-online/chess-backend/build/index.html")
-//   })
+
 
 function sendBoard(res, pieces){
 	res.send(pieces)
 }
-app.use(express.static(path.normalize('../chess-frontend/build')));
 
-app.get('/chessboard', (req, res) =>{
-	// chessModel.find({}).exec().then((result) => {res.send(result[0])})
-	chessModel.find({}).exec().then(result=> {
-		 invertBoard(result[0], res, sendBoard)
+app.use('/', express.static(path.normalize('../chess-frontend/build')));
+
+app.get('/game/live_board/:game_id/:which_player', (req, res) =>{
+
+	if(req.params.which_player == "player1")
+		game.find({game_id: req.params.game_id}).exec().then((result) => {res.send(result[0].live_board)})
+		
+	else if(req.params.which_player == "player2")
+		game.find({game_id: req.params.game_id}).exec().then(result=> {
+			invertBoard(result[0].live_board, res, sendBoard)
+		})
+})
+
+
+app.put('/game/movemade', jsonParser, (req, res) =>{
+	// console.log(req.body.which_player, req.body.src, req.body.dest, req.body.game_id)
+
+	let invertedVIndexSrc = (8 - parseInt(req.body.src[0]) + 1).toString();
+	let invertedVIndexDest = (8 - parseInt(req.body.dest[0]) + 1).toString();
+	let invertedHIndexSrc = String.fromCharCode(96 + 8 - (req.body.src[1].charCodeAt() - 96) + 1);
+	let invertedHIndexDest = String.fromCharCode(96 + 8 - (req.body.dest[1].charCodeAt() - 96) + 1);
+
+	let corrected_src = req.body.src
+	let corrected_dest = req.body.dest
+
+	if(req.body.which_player === "player2"){
+		corrected_src = invertedVIndexSrc + invertedHIndexSrc
+		corrected_dest = invertedVIndexDest + invertedHIndexDest
+	}
+
+	game.updateOne({game_id: req.body.game_id}, {$push: {moves: {which_player: req.body.which_player, src: corrected_src, dest: corrected_dest}}},function(err, res) {
+		// Updated at most one doc, `res.modifiedCount` contains the number
+		// of docs that MongoDB updated
 	})
+
+	live_board_update = {}
+	live_board_update['live_board.' + corrected_dest] = req.body.src_image_url
+	live_board_update['live_board.' + corrected_src] = 'assets/images/pieces/empty.png'
+
+	game.updateMany({game_id: req.body.game_id}, {$set: live_board_update},
+	function(err, res){
+
+	})
+		
+
+	res.send("ok")
+})
+
+app.listen(port, () => {
+	console.log(`server is running on port: ${port}`)
 })
