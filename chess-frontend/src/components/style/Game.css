@@ -1,0 +1,16 @@
+*{
+    margin-top: 0px;
+    padding: 0px;
+}
+
+#Game{
+    height: 100vh;
+    background-color: rgb(63, 63, 63);
+    overflow: hidden;
+  }
+
+#gameBoard{
+    position: relative;
+    left: 50% - 252px;
+    top: 7%;
+}

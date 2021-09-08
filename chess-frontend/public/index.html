@@ -5,21 +5,8 @@
 	<meta charset="utf-8" />
 	<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<meta name="google-signin-client_id" content="476666900659-arlr22ule9ekt75sf16lh5uqhosvicnb.apps.googleusercontent.com">
 	<title>React App</title>
 
-	<script src="https://apis.google.com/js/platform.js?onload=triggerGoogleLoaded" async defer></script>
-	<script type="text/javascript">
-		function triggerGoogleLoaded() {
-			console.log("google event loaded");
-			gapi.load('auth2', () => {
-				gapi.auth2.init().then(() => {
-					// DO NOT ATTEMPT TO RENDER BUTTON UNTIL THE 'Init' PROMISE RETURNS
-					window.dispatchEvent(new Event('google-loaded'));
-				});
-			});
-		}
-	</script>
 </head>
 
 <body>

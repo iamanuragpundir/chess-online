@@ -1,0 +1,24 @@
+#challengeForm{
+    position: fixed;
+    top: 50px;
+    width: 300px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 4px;
+    padding: 5px 5px 5px 5px;
+}
+#opponentsgmail{
+    box-shadow: none !important;
+    width: 240px;
+    height: 30px;
+}
+#blackpieces, #whitepieces, #makelive{
+    box-shadow: none !important;
+}
+#challengeForm > button{
+    margin-top: 6px;
+    box-shadow: none !important;
+}
+#cancel{
+    float: right;
+    margin-right: 7px;
+}

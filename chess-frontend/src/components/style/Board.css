@@ -1,8 +1,11 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
 #board{
     display: grid;
     grid-template-columns: repeat(8, 63px);
     grid-template-rows: repeat(8, 63px);
     width: 504px;
     height: 504px;
-    background-color: indianred;
 }

@@ -19,6 +19,7 @@
 
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require("cors")
 const game = require('./models/game')
 const board = require('./models/board')
 const path = require('path');
@@ -26,7 +27,7 @@ const bodyParser = require('body-parser')
 const { resolve } = require('path');
 
 const app = express();
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 5000
 var jsonParser = bodyParser.json()
 
 mongoose.connect('mongodb://localhost:27017/chess', {useNewUrlParser: true, useUnifiedTopology: true});
@@ -69,8 +70,8 @@ function invertBoard(pieces, res, callback){
 function sendBoard(res, pieces){
 	res.send(pieces)
 }
-
-app.use('/', express.static(path.normalize('../chess-frontend/build')));
+app.use(cors())
+// app.use('/', express.static(path.normalize('../chess-frontend/build')));
 
 app.get('/game/live_board/:game_id/:which_player', (req, res) =>{
 
@@ -108,6 +109,7 @@ app.put('/game/movemade', jsonParser, (req, res) =>{
 	live_board_update = {}
 	live_board_update['live_board.' + corrected_dest] = req.body.src_image_url
 	live_board_update['live_board.' + corrected_src] = 'assets/images/pieces/empty.png'
+	live_board_update['live_board.message'] = req.body.messageBar
 
 	game.updateMany({game_id: req.body.game_id}, {$set: live_board_update},
 	function(err, res){

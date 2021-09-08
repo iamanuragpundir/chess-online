@@ -1,7 +1,11 @@
-#App{
-  display: grid;
-  place-content: center;
-  height: 100vh;
-  background-color: rgb(58, 58, 58);
-}
 
+/* display: flex;
+  flex-wrap: wrap;
+  height: 100vh;
+  background: #000000;  fallback for old browsers
+  background: -webkit-linear-gradient(to right, #434343, #000000);
+  background: linear-gradient(to right, #434343, #000000); */
+#App{
+  height: 100vh;
+  background-color: rgb(63, 63, 63);
+}
