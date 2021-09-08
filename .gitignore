@@ -11,6 +11,9 @@
 # production
 **/build
 
+#configuration
+**/chess-config.js
+
 # misc
 .DS_Store
 .env.local

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { GoogleLogin, GoogleLogout } from 'react-google-login'
 import ChallengeForm from './ChallengeForm'
 import './style/Navbar.css'
+import {clientid} from './chess-config'
 
 export class Navbar extends Component {
     constructor(props) {
@@ -12,7 +13,7 @@ export class Navbar extends Component {
             userSignedIn: false,
             openChallengeForm: false
         }
-
+        console.log(clientid)
         this.toggleChallengeForm = this.toggleChallengeForm.bind(this)
     }
 
@@ -69,7 +70,7 @@ export class Navbar extends Component {
                     <div id="login">
 
                         <GoogleLogin
-                            clientId="476666900659-arlr22ule9ekt75sf16lh5uqhosvicnb.apps.googleusercontent.com"
+                            clientId={clientid}
                             render={renderProps => (
                                 <img src="assets/images/profile-logo.png" style={{ width: 35 }} onClick={renderProps.onClick} disabled={renderProps.disabled}></img>
                             )}
@@ -94,7 +95,8 @@ export class Navbar extends Component {
                             <li className="list-group-item"><Link to="/Live" >Live!</Link></li>
                             <li className="list-group-item">
                                 <GoogleLogout
-                                    clientId="476666900659-arlr22ule9ekt75sf16lh5uqhosvicnb.apps.googleusercontent.com"
+                                    clientId={clientid}
+                                    
                                     render={renderProps => (
                                         <a href="#" onClick={renderProps.onClick} disabled={renderProps.disabled}>Logout</a>
                                     )}
