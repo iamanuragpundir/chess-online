@@ -21,6 +21,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require("cors")
 const game = require('./models/game')
+const player = require('./models/player')
 const board = require('./models/board')
 const path = require('path');
 const bodyParser = require('body-parser')
@@ -73,6 +74,27 @@ function sendBoard(res, pieces){
 app.use(cors())
 // app.use('/', express.static(path.normalize('../chess-frontend/build')));
 
+app.post('/newuser', jsonParser, (req, res) => {
+	//check if the player that logged in currently exists or not
+	player.find({email: req.body.email}).countDocuments(function (err, count) {
+		if (err) console.log(err)
+		else if(count === 0){
+			player.create({...req.body, username: req.body.email.split('@')[0]})
+		}
+	})
+
+	// also mark the person as available
+	player.updateOne({email: req.body.email}, {$set: {status: "available"}},function(err, res) {
+	})
+})
+
+app.put('/toggleStatus' , jsonParser, (req, res) => {
+	// change the status to offline on logging out
+	console.log(req.body.email)
+	player.updateOne({email: req.body.email}, {$set: {status: req.body.status}},function(err, res) {
+	})
+})
+
 app.get('/game/live_board/:game_id/:which_player', (req, res) =>{
 
 	if(req.params.which_player == "player1")
@@ -113,11 +135,22 @@ app.put('/game/movemade', jsonParser, (req, res) =>{
 
 	game.updateMany({game_id: req.body.game_id}, {$set: live_board_update},
 	function(err, res){
-
 	})
 		
 
 	res.send("ok")
+})
+
+app.get('/player_details/:email_id', (req, res) => {
+	player.findOne({email: req.params.email_id}).exec().then(result => {
+		console.log(req.params.email_id)
+		res.send(result)
+	})
+})
+
+app.put('/send_request', jsonParser, (req, res) => {
+	player.updateOne({email: req.body.req_to}, {$push: {request: req.body}}, 
+		function(err, result){})
 })
 
 app.listen(port, () => {

@@ -21,7 +21,7 @@ export class Game extends Component {
 	}
 
 	componentDidMount() {
-		
+		console.log("In /Game")
 		this.timer = setInterval(() => {
 				try {
 					const which_player = localStorage.getItem("which_player")   //change to session storage

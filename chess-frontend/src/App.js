@@ -1,20 +1,21 @@
 import React, { Component } from 'react';
-import {BrowserRouter as Router,Route,Link,Switch} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route, Redirect} from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import Game from './components/Game';
 import Loading from './components/Loading'
+import History from './components/History';
 
 export class App extends Component {
 
 	constructor(props) {
 		super(props)
-		this.state = { 
-			pieces: [], 
-			isLoaded: false, 
-			src: null, 
-			dest: null, 
-			turnOf: "black", 
+		this.state = {
+			pieces: [],
+			isLoaded: false,
+			src: null,
+			dest: null,
+			turnOf: "black",
 			yourAre: "blackTiles",
 			messageBar: "",
 			newGame: false
@@ -29,7 +30,7 @@ export class App extends Component {
 			fetch(url).then(res => {
 				// console.log(res)
 				return res.json()
-				
+
 			}).then(json => {
 				this.setState({
 					pieces: json,
@@ -50,17 +51,21 @@ export class App extends Component {
 	}
 
 	render() {
-		if(this.state.isLoaded)
-			return(
-				<Router>
-					<div id="App" >
-						<Route exact path='/' component={ ()=> <Home pieces={this.state.pieces}/>}></Route>
-						<Route exact path='/Game' component={ ()=> <Game pieces={this.state.pieces} />}></Route>
-					</div>
-				</Router>
-			)
+		if (this.state.isLoaded)
+			return (
+				<div id="App" >
+					<Router>
+						<Switch>
+							<Home pieces={this.state.pieces} />
+							<Route exact path='/' component={<Home pieces={this.state.pieces} />} />
+							<Route exact path='/Game' component={<Game pieces={this.state.pieces} />} />
+							<Route exact path='/History' component={<History />} />
+						</Switch>
+					</Router>
+				</div >
+			);
 		else
-			return(
+	return(
 				<Loading />
 			)
 	}
