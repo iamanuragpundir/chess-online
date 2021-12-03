@@ -95,6 +95,7 @@ app.put('/toggleStatus' , jsonParser, (req, res) => {
 	})
 })
 
+// TODO create new board on getting new game request
 app.get('/game/live_board/:game_id/:which_player', (req, res) =>{
 
 	if(req.params.which_player == "player1")

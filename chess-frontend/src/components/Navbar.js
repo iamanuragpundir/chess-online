@@ -6,12 +6,12 @@ import './style/Navbar.css'
 import {clientid} from './chess-config'
 import Requests from './Requests'
 
-export class Navbar extends Component {
+export class Navbar extends Component{ 
     constructor(props) {
         super(props)
         this.state = {
             GoogleUser: [],
-            userSignedIn: false,
+            userSignedIn : false,
             openChallengeForm: false,
             requests: [],
             open_requests_page: false
@@ -57,7 +57,7 @@ export class Navbar extends Component {
 
     new_game_request = () => {
         this.timer = setInterval( ()=>{
-            console.log("checking reqs")
+            console.log("checking reqs after freq intervals")
             fetch(`http://localhost:5000/player_details/${JSON.parse(localStorage.getItem('GoogleUser')).email}`).then(resp => resp.json()).then(d => {
                 console.log(d['request'].length)
                 this.setState({requests: d['request']})
@@ -74,7 +74,7 @@ export class Navbar extends Component {
                     console.log("ab krdo match start")
                     this.toggle_requests_page();
                     //delete the request from the db
-                    return ( <Redirect to="/Game" />)
+                    this.props.togglenewGame(sender_email)
                 }
                 else if(d['status'] === 'offline')
                     console.log("user not online")
@@ -91,7 +91,6 @@ export class Navbar extends Component {
     }
 
     responseGoogle = (response) => {
-        
         console.log(response)
         
         if(response.error) {
