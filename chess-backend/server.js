@@ -40,10 +40,11 @@ db.once("open", function() {
 	console.log("MongoDB database connection established successfully");
 });
 
-function invertBoard(pieces, res, callback){
+function invertBoard(game, res, callback){
 	const haxis = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 	const vaxis = ['1', '2', '3', '4', '5', '6', '7', '8']
 
+	let pieces = game.live_board
 		//row-wise inversion
 	for (let i = 0; i < 4; i++) {
 		let invertedVIndex = (8 - parseInt(vaxis[i]) + 1).toString();
@@ -64,12 +65,14 @@ function invertBoard(pieces, res, callback){
 		}
 	}
 
-	callback(res, pieces)
+	game.live_board = pieces
+
+	callback(res, game)
 }
 
 
-function sendBoard(res, pieces){
-	res.send(pieces)
+function sendBoard(res, game){
+	res.send(game)
 }
 app.use(cors())
 // app.use('/', express.static(path.normalize('../chess-frontend/build')));
@@ -90,20 +93,59 @@ app.post('/newuser', jsonParser, (req, res) => {
 
 app.put('/toggleStatus' , jsonParser, (req, res) => {
 	// change the status to offline on logging out
-	console.log(req.body.email)
+	// console.log(req.body.email)
 	player.updateOne({email: req.body.email}, {$set: {status: req.body.status}},function(err, res) {
 	})
 })
 
-// TODO create new board on getting new game request
+// create new board on getting new game request
+app.post(`/game/create_board`, jsonParser, (req, res) => {
+	board.find({color: req.body.sender_color}, function(err, res){}).exec()
+		.then((result) => {
+			game.create({
+				game_id: req.body.game_id, 
+				player1: req.body.sender_email,
+				player2: req.body.reciever_email,
+				turnOf: 'player1',
+				default_view: req.body.sender_color,
+				live_board: result[0]
+			}, function(err, res){})
+		})
+
+	res.send('ok')
+})
+
+// MARK THE START_MATCH as GAME_ID, SO THAT SENDER CAN BE UPDATED ABOUT THE GAME HAS STARTED
+app.get('/game/start_game/:email/:game_id', (req, res) => {
+	player.updateOne({email: req.params.email},{$set: {start_match: req.params.game_id}}, function(err, res){})
+	res.send('OK')
+})
+
+//CHANGE THE TURN OF PLAYER
+app.get('/game/toggleTurn/:game_id/:which_player', (req, res) => {
+	opponent = (req.params.which_player === 'player1') ? 'player2' : 'player1'
+	game.updateOne({game_id: req.params.game_id}, {$set: {turnOf: opponent}}, function(err, res){})
+	res.send('OK')
+})
+
+// DELETE THE REQUEST AFTER ITS ACCEPTED
+app.get('/game/delete_request/:sender/:reciever', (req, res) => {
+	 player.updateOne({email: req.params.reciever}, {$pull: {request: {sender: req.params.sender}}},
+		function(err, res){})
+
+	res.send('OK')
+})
+
+// GET LIVE BOARD WHILE IN THE GAME
 app.get('/game/live_board/:game_id/:which_player', (req, res) =>{
 
 	if(req.params.which_player == "player1")
-		game.find({game_id: req.params.game_id}).exec().then((result) => {res.send(result[0].live_board)})
+		game.find({game_id: req.params.game_id}).exec().then((result) => {res.send(result[0])})
 		
 	else if(req.params.which_player == "player2")
 		game.find({game_id: req.params.game_id}).exec().then(result=> {
-			invertBoard(result[0].live_board, res, sendBoard)
+			// console.log(result[0])
+			invertBoard(result[0], res, sendBoard)
 		})
 })
 
@@ -144,7 +186,7 @@ app.put('/game/movemade', jsonParser, (req, res) =>{
 
 app.get('/player_details/:email_id', (req, res) => {
 	player.findOne({email: req.params.email_id}).exec().then(result => {
-		console.log(req.params.email_id)
+		// console.log(req.params.email_id)
 		res.send(result)
 	})
 })

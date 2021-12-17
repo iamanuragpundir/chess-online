@@ -14,7 +14,7 @@ export class Navbar extends Component{
             userSignedIn : false,
             openChallengeForm: false,
             requests: [],
-            open_requests_page: false
+            open_requests_page: false,
         }
         console.log(clientid)
         this.toggleChallengeForm = this.toggleChallengeForm.bind(this)
@@ -56,25 +56,35 @@ export class Navbar extends Component{
     }
 
     new_game_request = () => {
-        this.timer = setInterval( ()=>{
-            console.log("checking reqs after freq intervals")
-            fetch(`http://localhost:5000/player_details/${JSON.parse(localStorage.getItem('GoogleUser')).email}`).then(resp => resp.json()).then(d => {
-                console.log(d['request'].length)
-                this.setState({requests: d['request']})
-            })
+        try{
 
-        }, 2000)
+            this.timer = setInterval( ()=>{
+                console.log("checking reqs after freq intervals")
+                fetch(`http://localhost:5000/player_details/${JSON.parse(localStorage.getItem('GoogleUser')).email}`).then(resp => resp.json()).then(d => {
+                    console.log(d['request'].length)
+                    this.setState({requests: d['request']})
+
+                    //if someone has accepted our request then move on to start new game using the created game_id
+                    if(d['start_match'] != null)
+                        this.props.begin_match(d['start_match'])
+                })
+    
+            }, 2000)
+        }
+        catch(err){
+
+        }
     }
 
-    request_accepted = (sender_email) => {
+    request_accepted = (sender_email, reciever_email) => {
         fetch(`http://localhost:5000/player_details/${sender_email}`)
         .then(resp => resp.json())
         .then(d => { 
                 if(d['status'] === 'available'){
                     console.log("ab krdo match start")
                     this.toggle_requests_page();
-                    //delete the request from the db
-                    this.props.togglenewGame(sender_email)
+                    
+                    this.props.togglenewGame(sender_email, reciever_email)
                 }
                 else if(d['status'] === 'offline')
                     console.log("user not online")

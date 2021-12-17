@@ -9,7 +9,10 @@ export class Requests extends Component {
                         this.props.requests.map(e => {
                             return (
                                 <div>
-                                    {e.sender}&nbsp;&nbsp;<button className="btn btn-sm btn-success" onClick={()=>this.props.request_accepted(e.sender)}>Accept</button>
+                                    {e.sender}&nbsp;&nbsp;
+                                    <button className="btn btn-sm btn-success" 
+                                    onClick={()=>this.props.request_accepted(e.sender, JSON.parse(localStorage.getItem("GoogleUser")).email)}>Accept
+                                    </button>
                                 </div>
                             )
                         })

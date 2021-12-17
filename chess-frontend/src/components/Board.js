@@ -431,15 +431,24 @@ export class Board extends Component {
     }
 
     pieceClicked = (e) => {
-        //check if a pieceSelected is false, then this is the selection of the piece that will be moved
-        // we highlight all the valid tile where the move can be made
-        // if the player clicks on the selected tile itself we abort the process of moving and get to normal board
-        
+
+        //if its not my turn, ABORT
+        if(this.props.myTurn == false) return
+
         const pieceId = e.target.id
         const pieceImgUrl = this.props.pieces[pieceId]   //  assets/images/pieces/knightB.png
         const pieceWithExtension = pieceImgUrl.split('/')[pieceImgUrl.split('/').length-1]    //knightB.png
+        const colorAlpha = pieceWithExtension[-1]
         const pieceName = pieceWithExtension.substr(0, pieceWithExtension.length-5)    //knight
-
+        
+        //if Im clicking on opponent's tile, ABORT
+        if((colorAlpha == 'B' && this.props.color == 'white') || 
+        (colorAlpha == 'W' && this.props.color == 'black') ) return
+        
+        
+        //check if a pieceSelected is false, then this is the selection of the piece that will be moved
+        // we highlight all the valid tile where the move can be made
+        // if the player clicks on the selected tile itself we abort the process of moving and get to normal board
         if (this.state.pieceSelected === false){
 
             //give all the options this piece can go to by making the bgcolor same

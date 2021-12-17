@@ -10,7 +10,7 @@ export default class Home extends Component{
 
         return (
             <div>
-                <Navbar togglenewGame={this.props.togglenewGame}/>
+                <Navbar togglenewGame={this.props.togglenewGame} begin_match={this.props.begin_match}/>
                 <div>
                     <h3>Here we will share highlights of last played matched...</h3>
                 </div>

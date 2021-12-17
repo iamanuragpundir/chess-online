@@ -4,6 +4,7 @@ const gameSchema = new mongoose.Schema({
     game_id: String,
     player1: String,
     player2: String,
+    turnOf: String,
     winner: String,
     default_view: String,
     moves: [{

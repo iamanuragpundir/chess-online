@@ -12,8 +12,8 @@ export class Game extends Component {
 			isLoaded: false, 
 			src: null, 
 			dest: null, 
-			turnOf: "black", 
-			yourAre: "blackTiles",
+			myTurn: false,
+			color: null,
 			messageBar: null
 		}
 
@@ -21,7 +21,6 @@ export class Game extends Component {
 	}
 
 	componentDidMount() {
-		console.log("In /Game")
 		this.timer = setInterval(() => {
 				try {
 					const which_player = localStorage.getItem("which_player")   //change to session storage
@@ -33,13 +32,17 @@ export class Game extends Component {
 						return res.json()
 						
 					}).then(json => {
+						let my_color
+						if(which_player == 'player1') my_color = json['default_view']
+						else my_color = (json['default_view'] == 'black') ? 'white' : 'black';
+
 						this.setState({
-							pieces: json,
+							pieces: json['live_board'],
 							messageBar: json["message"],
-							isLoaded: true
+							isLoaded: true,
+							color: my_color,
+							myTurn: (json['turnOf'] === which_player) ? true : false
 						})
-						// console.log(this.state.pieces)
-						// console.log("success")
 					})
 				}
 				catch (err) {
@@ -92,11 +95,13 @@ export class Game extends Component {
 				})
 			}
 			
-			fetch(url, params).then(s=>{
-				console.log(s)
-			})
+			fetch(url, params)
+			.then(this.setState({myTurn: false})) //block turn if this player after valid move
+			.then(
+				//allow opponent to make the next move
+				fetch(`http://localhost:5000/game/toggleTurn/${localStorage.getItem('game_id')}/${localStorage.getItem("which_player")}`)	 
+			)
 		})
-		//TODO send a request to the server to update the database with the following move
 	}
 
 	render() {
@@ -108,7 +113,12 @@ export class Game extends Component {
 				<div id="Game">
 					<div id="gameBoard">
 						<MessageBar messageBar = {this.state.messageBar} />
-						<Board pieces={this.state.pieces} validMoveMade={this.validMoveMade} />
+						<Board 
+							myTurn={this.state.myTurn} 
+							color={this.state.color} 
+							pieces={this.state.pieces} 
+							validMoveMade={this.validMoveMade} 
+						/>
 					</div>
 				</div>
 			);
